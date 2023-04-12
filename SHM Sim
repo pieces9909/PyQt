@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+from PyQt5.QtWidgets import (QDialog, QLabel, QGridLayout,
+                             QDoubleSpinBox, QApplication)
+import numpy as np
+
+
+class Form(QDialog):
+
+    def __init__(self):
+        super().__init__()
+        # inputs
+        self.lengthSpinBox = QDoubleSpinBox()
+        self.lengthSpinBox.setRange(0.1, 100.)
+        self.lengthSpinBox.setValue(1.2)
+        self.lengthSpinBox.setSuffix(" m")
+        self.lengthSpinBox.setDecimals(2)
+        self.lengthSpinBox.setSingleStep(0.01)
+        lengthLabel = QLabel("Length:")
+
+        self.gravitySpinBox = QDoubleSpinBox()
+        self.gravitySpinBox.setRange(0., 5000.)
+        self.gravitySpinBox.setValue(9.81)
+        self.gravitySpinBox.setSuffix(" m/s\u00B2")
+        self.gravitySpinBox.setDecimals(2)
+        self.gravitySpinBox.setSingleStep(0.01)
+
+        gravityLabel = QLabel("Gravity:")
+
+
+        # outputs
+        self.period = QLabel()
+        periodLabel = QLabel("Period:")
+        self.frequency = QLabel()
+        frequencyLabel = QLabel("Frequency:")
+
+        grid = QGridLayout()
+        # inputs
+        grid.addWidget(lengthLabel, 0, 0)  # Diameter
+        grid.addWidget(self.lengthSpinBox, 0, 1)
+        grid.addWidget(gravityLabel, 1, 0)  # Density
+        grid.addWidget(self.gravitySpinBox, 1, 1)
+
+        # outputs
+        grid.addWidget(periodLabel, 0, 2)  # Hydro diam
+        grid.addWidget(self.period, 0, 3)
+        grid.addWidget(frequencyLabel, 1, 2)  # Diff coef
+        grid.addWidget(self.frequency, 1, 3)
+        self.setLayout(grid)
+        # Set up event loop with signals & slots
+        self.lengthSpinBox.valueChanged.connect(self.updateUi)
+        self.gravitySpinBox.valueChanged.connect(self.updateUi)
+        self.setWindowTitle("Simple Harmonic Motion Simulator")
+        self.updateUi()
+
+    def updateUi(self):
+        T = 2*np.pi*np.sqrt(self.lengthSpinBox.value()/self.gravitySpinBox.value())
+        f = 1/T
+
+        self.frequency.setText("{0:0.3g} Hz" .format(f))
+        self.period.setText("{0:0.3g} s".format(T))
+        return
+
+
+app = QApplication(sys.argv)
+form = Form()
+form.show()
+sys.exit(app.exec_())
